@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>한자 익힘 · 田字格</title>
+<style>
+  :root{
+    --paper:#ECE6D8; --paper-2:#F5F0E4; --paper-3:#FBF8F0;
+    --ink:#211C16; --ink-soft:#5F5746; --ink-faint:#A89E89;
+    --seal:#B23A24; --seal-deep:#8F2C1B; --jade:#4F8466; --jade-deep:#3C6B51;
+    --line:#D7CFBC; --grid-line:rgba(178,58,36,0.16); --shadow:rgba(33,28,22,0.12);
+    --serif:'Apple Myungjo','AppleMyungjo','Nanum Myeongjo','NanumMyeongjo','Noto Serif KR',Batang,'바탕',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(33,28,22,0.025) 1px, transparent 1px);background-size:4px 4px;}
+  .wrap{max-width:720px;margin:0 auto;padding:28px 20px 80px;}
+
+  .masthead{display:flex;align-items:center;gap:16px;}
+  .seal{width:52px;height:52px;flex:none;background:var(--seal);color:var(--paper-3);display:grid;place-items:center;font-family:var(--serif);font-size:30px;line-height:1;border-radius:3px;box-shadow:0 1px 0 var(--seal-deep), 0 4px 10px var(--shadow);transform:rotate(-1.5deg);}
+  .title-block h1{margin:0;font-family:var(--serif);font-weight:600;font-size:26px;letter-spacing:.04em;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:3px;}
+  .ink-rule{height:1px;background:var(--line);margin:20px 0 18px;}
+  .ink-rule.thin{margin:14px 0;}
+  .stats{display:flex;gap:24px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em;margin-top:14px;}
+  .stats b{color:var(--ink);font-size:16px;}
+  .stats .stat span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);}
+
+  .tabs{display:flex;gap:2px;margin:22px 0 24px;border-bottom:1.5px solid var(--ink);flex-wrap:wrap;}
+  .tab{appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink-soft);padding:9px 14px;margin-bottom:-1.5px;border-bottom:2.5px solid transparent;letter-spacing:.02em;}
+  .tab:hover{color:var(--ink);}
+  .tab.is-on{color:var(--ink);border-bottom-color:var(--seal);}
+  .tab:focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px;}
+  .view{display:none;animation:fade .35s ease;}
+  .view.is-on{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .panel{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:18px;box-shadow:0 1px 2px var(--shadow);}
+  .panel h2{margin:0 0 4px;font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:.02em;}
+  .panel .hint{margin:0 0 16px;color:var(--ink-soft);font-size:13px;}
+
+  label.fld{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin:0 0 6px;letter-spacing:.02em;}
+  .rd-status{font-family:var(--mono);font-size:10px;letter-spacing:.1em;font-weight:600;margin-left:6px;color:var(--ink-faint);}
+  .rd-status.busy{color:var(--seal);} .rd-status.ok{color:var(--jade-deep);} .rd-status.miss{color:var(--seal);}
+
+  textarea,input[type=text],input[type=number],select{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--paper-3);border:1px solid var(--line);border-radius:6px;padding:11px 12px;line-height:1.5;}
+  textarea{min-height:90px;resize:vertical;line-height:1.55;}
+  textarea::placeholder,input::placeholder{color:var(--ink-faint);}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--seal);box-shadow:0 0 0 3px rgba(178,58,36,.12);}
+  select{cursor:pointer;-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F5746' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;}
+
+  .row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+  .row .grow{flex:1 1 auto;min-width:0;}
+  .narrow{max-width:130px;}
+
+  .btn{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:600;padding:10px 18px;border-radius:6px;border:1px solid transparent;letter-spacing:.02em;transition:transform .04s ease, background .15s ease;}
+  .btn:active{transform:translateY(1px);}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .btn--seal{background:var(--seal);color:var(--paper-3);box-shadow:0 1px 0 var(--seal-deep);}
+  .btn--seal:hover{background:var(--seal-deep);}
+  .btn--jade{background:var(--jade);color:var(--paper-3);box-shadow:0 1px 0 var(--jade-deep);}
+  .btn--jade:hover{background:var(--jade-deep);}
+  .btn--ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn--ghost:hover{border-color:var(--ink);background:var(--paper-3);}
+  .btn--quiet{background:transparent;color:var(--ink-soft);padding:8px 12px;border:none;font-size:13px;text-decoration:underline;text-underline-offset:3px;}
+  .btn--quiet:hover{color:var(--seal);}
+  .btn--danger{background:transparent;color:var(--seal);border-color:rgba(178,58,36,.4);}
+  .btn--danger:hover{background:var(--seal);color:var(--paper-3);}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+
+  .seg{display:inline-flex;background:var(--paper-3);border:1px solid var(--line);border-radius:7px;padding:3px;gap:3px;flex-wrap:wrap;}
+  .seg button{appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-soft);padding:7px 12px;border-radius:5px;}
+  .seg button.is-on{background:var(--ink);color:var(--paper-3);}
+  .seg button:focus-visible{outline:2px solid var(--seal);outline-offset:1px;}
+
+  .field-group{margin-bottom:18px;}
+  .field-group > .lbl{display:block;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;letter-spacing:.14em;text-transform:uppercase;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;background:var(--paper-3);border:1px solid var(--line);border-radius:20px;padding:8px 15px;color:var(--ink);display:inline-flex;align-items:baseline;gap:7px;}
+  .chip .ct{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+  .chip:hover{border-color:var(--ink);}
+  .chip.is-on{background:var(--seal);border-color:var(--seal);color:var(--paper-3);}
+  .chip.is-on .ct{color:rgba(255,255,255,.7);}
+  .chip:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+  .tian{position:relative;background:var(--paper-3);border:2px solid var(--ink);display:grid;place-items:center;border-radius:2px;background-image:linear-gradient(to right, transparent calc(50% - .75px), var(--grid-line) calc(50% - .75px), var(--grid-line) calc(50% + .75px), transparent calc(50% + .75px)),linear-gradient(to bottom, transparent calc(50% - .75px), var(--grid-line) calc(50% - .75px), var(--grid-line) calc(50% + .75px), transparent calc(50% + .75px));}
+  .tian .han{font-family:var(--serif);color:var(--ink);line-height:1;font-weight:500;}
+  .tian .reading{font-family:var(--serif);color:var(--ink);text-align:center;padding:0 8%;font-weight:500;}
+  .preview{display:flex;align-items:center;gap:16px;margin-top:16px;}
+  .preview .tian{width:96px;height:96px;} .preview .tian .han{font-size:56px;}
+  .preview .pv-meta{font-size:13px;color:var(--ink-soft);} .preview .pv-meta .rd{font-family:var(--serif);font-size:18px;color:var(--ink);display:block;margin-top:2px;}
+
+  .session{text-align:center;}
+  .progress{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .progress .count{font-family:var(--mono);font-size:12px;color:var(--ink-soft);white-space:nowrap;letter-spacing:.06em;}
+  .bar{flex:1;height:5px;background:var(--paper-3);border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+  .bar i{display:block;height:100%;background:var(--seal);transition:width .3s ease;}
+  .stage{perspective:1200px;display:flex;justify-content:center;margin:8px 0 24px;}
+  .flip{position:relative;width:min(74vw,280px);height:min(74vw,280px);transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.1,.2,1);}
+  .flip.flipped{transform:rotateY(180deg);}
+  .flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;cursor:pointer;}
+  .flip .face.back{transform:rotateY(180deg);}
+  .flip .tian{width:100%;height:100%;} .flip .tian .han{font-size:clamp(80px,22vw,150px);} .flip .tian .reading{font-size:clamp(26px,7vw,40px);}
+  .flip-tag{position:absolute;top:8px;left:0;right:0;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);}
+  .quiz-stage{display:flex;justify-content:center;margin:8px 0 22px;}
+  .quiz-stage .tian{width:min(56vw,190px);height:min(56vw,190px);} .quiz-stage .tian .han{font-size:clamp(64px,16vw,110px);} .quiz-stage .tian .reading{font-size:clamp(22px,6vw,34px);}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:440px;margin:0 auto;}
+  .opt{appearance:none;cursor:pointer;font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);background:var(--paper-3);border:1.5px solid var(--line);border-radius:8px;padding:16px 10px;min-height:60px;transition:border-color .12s ease, background .12s ease;}
+  .opt:hover:not(:disabled){border-color:var(--ink);}
+  .opt:focus-visible{outline:2px solid var(--seal);outline-offset:2px;}
+  .opt.correct{background:var(--jade);border-color:var(--jade-deep);color:var(--paper-3);}
+  .opt.wrong{background:var(--seal);border-color:var(--seal-deep);color:var(--paper-3);}
+  .opt:disabled{cursor:default;}
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .result{text-align:center;padding:8px 0;}
+  .result .big{font-family:var(--serif);font-size:clamp(40px,12vw,64px);line-height:1.1;margin:6px 0 4px;}
+  .result .sub{color:var(--ink-soft);font-size:14px;margin-bottom:8px;}
+  .result .tally{display:inline-flex;gap:24px;font-family:var(--mono);font-size:13px;margin:10px 0 22px;}
+  .result .tally .ok{color:var(--jade-deep);} .result .tally .no{color:var(--seal);} .result .tally b{font-size:22px;display:block;}
+
+  .list-group{margin-bottom:22px;}
+  .list-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .list-head .nm{font-family:var(--serif);font-size:17px;font-weight:600;}
+  .list-head .ct{font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.08em;}
+  .list-head .sp{flex:1;}
+  .list-head .ln-fields{display:flex;gap:8px;flex:1;align-items:center;}
+  .list-head .ln-fields input{flex:1;max-width:240px;padding:7px 10px;font-size:14px;}
+  .item{display:flex;align-items:center;gap:14px;background:var(--paper-2);border:1px solid var(--line);border-radius:7px;padding:10px 12px;margin-bottom:7px;}
+  .item .mini{width:42px;height:42px;flex:none;font-family:var(--serif);font-size:26px;display:grid;place-items:center;background:var(--paper-3);border:1px solid var(--line);border-radius:3px;color:var(--ink);}
+  .item .rd{flex:1;font-family:var(--serif);font-size:18px;color:var(--ink);min-width:0;}
+  .item .acts{display:flex;gap:4px;flex:none;}
+  .icon-btn{appearance:none;border:none;background:none;cursor:pointer;color:var(--ink-faint);font-size:13px;padding:6px 8px;border-radius:5px;font-weight:600;font-family:var(--sans);}
+  .icon-btn:hover{color:var(--seal);background:var(--paper-3);}
+  .item .edit-fields{display:flex;gap:8px;flex:1;flex-wrap:wrap;align-items:center;}
+  .item .edit-fields input{flex:1;min-width:70px;padding:7px 9px;font-size:14px;}
+  .item .edit-fields select{flex:1;min-width:90px;padding:7px 9px;font-size:13px;}
+  .list-empty{font-size:13px;color:var(--ink-faint);padding:4px 2px 10px;}
+  .tools{display:flex;flex-wrap:wrap;gap:10px;}
+  .danger-zone{margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .empty{text-align:center;padding:36px 16px;color:var(--ink-soft);}
+  .empty .mark{font-family:var(--serif);font-size:44px;color:var(--ink-faint);margin-bottom:8px;}
+  .empty p{margin:0 0 14px;font-size:14px;}
+
+  /* play buttons */
+  .play-mini{width:38px;height:38px;border-radius:50%;border:none;background:var(--seal);color:var(--paper-3);display:grid;place-items:center;cursor:pointer;flex:none;}
+  .play-mini svg{width:18px;height:18px;}
+  .play-mini:active{transform:translateY(1px);}
+
+  /* japanese search results */
+  .naver-link{display:inline-block;margin:2px 0 14px;font-size:12px;color:var(--seal);text-decoration:underline;text-underline-offset:3px;font-weight:600;}
+  .result-card{display:flex;align-items:center;gap:12px;background:var(--paper-3);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:8px;animation:fade .25s ease;}
+  .result-card .rc-body{flex:1;min-width:0;}
+  .result-card .rc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .result-card .rc-w{font-family:var(--serif);font-size:22px;color:var(--ink);}
+  .result-card .rc-k{font-family:var(--serif);font-size:14px;color:var(--ink-soft);}
+  .result-card .rc-mean{font-size:14px;color:var(--ink);margin-top:2px;}
+  .result-card .rc-read{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:4px;letter-spacing:.03em;}
+  .result-card .rc-read b{color:var(--ink-soft);}
+  .kun-pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .kun-chip{display:inline-flex;align-items:center;gap:5px;background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:3px 10px 3px 4px;cursor:pointer;font-family:var(--serif);font-size:14px;color:var(--ink);user-select:none;}
+  .kun-chip.is-on{background:var(--jade);border-color:var(--jade-deep);color:var(--paper-3);}
+  .kun-chip .kp-play{border:none;background:rgba(33,28,22,.08);color:inherit;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none;padding:0;}
+  .kun-chip.is-on .kp-play{background:rgba(255,255,255,.28);}
+  .kun-chip .kp-play svg{width:12px;height:12px;}
+  .search-note{font-size:12px;color:var(--ink-faint);margin-top:8px;}
+
+  /* japanese quiz */
+  .audio-warn{color:var(--seal);font-size:13px;margin:-4px 0 14px;font-weight:600;}
+  .jp-session{text-align:center;}
+  .play-wrap{display:flex;justify-content:center;margin:10px 0 6px;}
+  .play-btn{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;background:var(--seal);color:var(--paper-3);display:grid;place-items:center;box-shadow:0 2px 0 var(--seal-deep),0 8px 22px var(--shadow);}
+  .play-btn svg{width:42px;height:42px;}
+  .play-btn:active{transform:translateY(1px);}
+  .play-btn:focus-visible{outline:2px solid var(--ink);outline-offset:4px;}
+  .play-btn.pulse{animation:pulse .55s ease;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(178,58,36,.45),0 2px 0 var(--seal-deep);}100%{box-shadow:0 0 0 20px rgba(178,58,36,0),0 2px 0 var(--seal-deep);}}
+  .play-hint{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:10px;}
+  .jp-reveal{margin:18px auto 6px;max-width:360px;background:var(--paper-3);border:1px solid var(--line);border-radius:10px;padding:18px;animation:fade .3s ease;}
+  .jp-reveal .w{font-family:var(--serif);font-size:36px;line-height:1.15;color:var(--ink);}
+  .jp-reveal .k{font-family:var(--serif);font-size:18px;color:var(--ink-soft);margin-top:4px;}
+  .jp-reveal .rr{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:6px;letter-spacing:.04em;}
+  .jp-reveal .rr b{color:var(--ink-soft);}
+  .jp-reveal .m{font-size:17px;color:var(--ink);margin-top:11px;padding-top:11px;border-top:1px solid var(--line);}
+  .jp-item .w{flex:1;min-width:0;}
+  .jp-item .w .ww{font-family:var(--serif);font-size:19px;color:var(--ink);}
+  .jp-item .w .kk{font-family:var(--serif);font-size:13px;color:var(--ink-soft);margin-left:4px;}
+  .jp-item .w .mm{font-size:14px;color:var(--ink);margin-top:2px;}
+  .jp-item .w .rdg{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-top:2px;}
+
+  /* calendar */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+  .cal-title{font-family:var(--serif);font-size:18px;font-weight:600;}
+  .cal-nav{display:flex;gap:6px;align-items:center;}
+  .cal-nav .btn{padding:8px 14px;}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .cal-weekdays div{text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.08em;}
+  .cal-weekdays div.sun{color:var(--seal);} .cal-weekdays div.sat{color:#4a6f9c;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-cell{position:relative;aspect-ratio:1/1;background:var(--paper-3);border:1px solid var(--line);border-radius:7px;cursor:pointer;display:flex;align-items:flex-start;justify-content:flex-start;padding:7px;}
+  .cal-cell.empty{background:transparent;border:none;cursor:default;}
+  .cal-cell .dn{font-size:13px;font-weight:600;color:var(--ink);font-family:var(--sans);}
+  .cal-cell.today{border-color:var(--seal);box-shadow:inset 0 0 0 1px var(--seal);}
+  .cal-cell.sel{background:var(--seal);border-color:var(--seal);}
+  .cal-cell.sel .dn{color:var(--paper-3);}
+  .cal-cell .dot{position:absolute;bottom:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--jade);}
+  .cal-cell.sel .dot{background:var(--paper-3);}
+  .diary-edit{margin-top:20px;}
+  .diary-edit .dd{font-family:var(--serif);font-size:16px;font-weight:600;margin-bottom:8px;}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper-3);font-size:13px;font-weight:600;padding:11px 18px;border-radius:24px;box-shadow:0 6px 20px var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;z-index:50;max-width:88vw;text-align:center;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:480px){ .wrap{padding:22px 15px 70px;} }
+  @media (prefers-reduced-motion:reduce){ .flip{transition:none;} .view,.jp-reveal,.result-card{animation:none;} .bar i{transition:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="seal" aria-hidden="true">學</div>
+    <div class="title-block">
+      <div class="eyebrow">Hanja · 田字格</div>
+      <h1>한자 익힘</h1>
+    </div>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="stat"><b id="stat-chars">0</b><span>모은 한자</span></div>
+    <div class="stat"><b id="stat-lists">0</b><span>목록</span></div>
+    <div class="stat"><b id="stat-jp">0</b><span>일본어 단어</span></div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab is-on" data-tab="add" role="tab">한자 추가</button>
+    <button class="tab" data-tab="study" role="tab">한자 학습</button>
+    <button class="tab" data-tab="manage" role="tab">목록</button>
+    <button class="tab" data-tab="jp" role="tab">일본어</button>
+    <button class="tab" data-tab="cal" role="tab">달력</button>
+  </nav>
+
+  <!-- ============ HANJA ADD ============ -->
+  <section class="view is-on" id="view-add">
+    <div class="panel">
+      <h2>목록 선택</h2>
+      <p class="hint">한자를 어느 목록에 넣을지 골라요. 학습도 목록 단위로 해요.</p>
+      <div class="row">
+        <div class="grow"><select id="target-list"></select></div>
+        <button class="btn btn--ghost" id="new-list">+ 새 목록</button>
+      </div>
+      <div class="row" id="new-list-row" style="display:none;margin-top:10px;">
+        <div class="grow"><input type="text" id="new-list-name" placeholder="목록 이름 (예: 1과, 동물)"></div>
+        <button class="btn btn--seal" id="create-list">만들기</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>한자 사전에서 찾기</h2>
+      <p class="hint">뜻·음(예: <code>회</code>, <code>모이다</code>)이나 한자(<code>會</code>)로 검색하고, 후보 중에 골라 <b>가져오기</b>를 눌러요. 가져올 때 <b>훈독</b>도 같이 들어와요.</p>
+      <div class="row">
+        <div class="grow"><input type="text" id="han-q" placeholder="검색어 (뜻·음 또는 한자)"></div>
+        <button class="btn btn--seal" id="han-search">검색</button>
+      </div>
+      <a class="naver-link" id="han-naver" href="https://ja.dict.naver.com/" target="_blank" rel="noopener">네이버 일본어 사전에서 보기 ↗</a>
+      <div id="han-results"></div>
+      <p class="search-note" id="han-search-note"></p>
+    </div>
+
+    <div class="panel">
+      <h2>직접 넣기</h2>
+      <p class="hint">검색에 없으면 직접 넣어요. 훈독을 넣어두면 한자 학습의 훈독 듣기 퀴즈에 나와요.</p>
+      <div class="row">
+        <div class="narrow"><label class="fld" for="one-han">한자</label><input type="text" id="one-han" maxlength="8" placeholder="會"></div>
+        <div class="grow"><label class="fld" for="one-rd">뜻과 음</label><input type="text" id="one-rd" placeholder="모일 회"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div class="narrow"><label class="fld" for="one-kun">훈독</label><input type="text" id="one-kun" placeholder="あ(う)"></div>
+        <div class="grow"></div>
+        <button class="btn btn--seal" id="one-add">더하기</button>
+      </div>
+      <div class="preview" id="preview" hidden>
+        <div class="tian"><span class="han" id="pv-han"></span></div>
+        <div class="pv-meta">미리보기<span class="rd" id="pv-rd"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HANJA STUDY ============ -->
+  <section class="view" id="view-study">
+    <div id="study-setup">
+      <div class="panel">
+        <div class="field-group">
+          <span class="lbl">어느 목록을 볼까요</span>
+          <div class="chips" id="list-chips"></div>
+        </div>
+        <div class="ink-rule thin"></div>
+        <div class="field-group">
+          <span class="lbl">방식</span>
+          <div class="seg" id="mode-seg" role="group">
+            <button data-mode="flash" class="is-on">플래시카드</button>
+            <button data-mode="quiz">객관식</button>
+            <button data-mode="kun">훈독 듣기</button>
+          </div>
+        </div>
+        <p class="audio-warn" id="han-audio-note" hidden></p>
+        <div class="field-group" id="dir-group" style="margin-bottom:6px;">
+          <span class="lbl">묻는 방향</span>
+          <div class="seg" id="dir-seg" role="group">
+            <button data-dir="h2r" class="is-on">한자 → 뜻·음</button>
+            <button data-dir="r2h">뜻·음 → 한자</button>
+          </div>
+        </div>
+      </div>
+      <div class="controls" style="justify-content:flex-start;">
+        <button class="btn btn--seal" id="start" style="padding:12px 28px;">학습 시작</button>
+        <span id="start-note" style="font-size:13px;color:var(--ink-soft);align-self:center;"></span>
+      </div>
+    </div>
+    <div class="panel session" id="study-session" hidden></div>
+  </section>
+
+  <!-- ============ MANAGE ============ -->
+  <section class="view" id="view-manage">
+    <div id="manage-list"></div>
+    <div class="panel">
+      <h2>백업</h2>
+      <p class="hint">목록·일본어 단어·달력 메모를 파일로 보관하거나 불러와요.</p>
+      <div class="tools">
+        <button class="btn btn--ghost" id="export-copy">복사하기</button>
+        <button class="btn btn--ghost" id="export-file">파일로 저장</button>
+      </div>
+      <div class="ink-rule thin"></div>
+      <label class="fld" for="import-box">가져오기 (붙여넣고 덮어쓰기)</label>
+      <textarea id="import-box" style="font-family:var(--mono);font-size:12px;" placeholder='{"lists":[...],"cards":[...],"jp":[...],"diary":{...}}'></textarea>
+      <div style="margin-top:10px;"><button class="btn btn--ghost" id="import-btn">이 내용으로 덮어쓰기</button></div>
+    </div>
+    <div class="panel">
+      <h2>전체 삭제</h2>
+      <p class="hint">모은 한자와 목록을 모두 지워요. 되돌릴 수 없으니 먼저 백업해 두세요. (일본어·달력은 그대로)</p>
+      <div class="danger-zone">
+        <button class="btn btn--danger" id="clear-all">전체 삭제</button>
+        <span id="clear-confirm" style="display:none;font-size:13px;color:var(--seal);">정말 지울까요?</span>
+        <button class="btn btn--danger" id="clear-yes" style="display:none;">네, 모두 지워요</button>
+        <button class="btn btn--quiet" id="clear-no" style="display:none;">취소</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ JAPANESE ============ -->
+  <section class="view" id="view-jp">
+    <div class="panel">
+      <h2>사전에서 찾기</h2>
+      <p class="hint">한국어나 일본어로 검색하고, 원하는 단어를 골라 가져와요. <b>음독·훈독</b>도 같이 들어와요. 예: <code>산</code>, <code>山</code>, <code>놀다</code></p>
+      <div class="row">
+        <div class="grow"><input type="text" id="jp-q" placeholder="검색어 (한국어 또는 일본어)"></div>
+        <button class="btn btn--seal" id="jp-search">검색</button>
+      </div>
+      <a class="naver-link" id="jp-naver" href="https://ja.dict.naver.com/" target="_blank" rel="noopener">네이버 일본어 사전에서 보기 ↗</a>
+      <div id="jp-results"></div>
+      <p class="search-note" id="jp-search-note"></p>
+    </div>
+
+    <div class="panel">
+      <h2>직접 넣기</h2>
+      <p class="hint">검색에 없으면 직접 넣어요. 훈독을 넣어두면 훈독 듣기 퀴즈에 나와요.</p>
+      <div class="row">
+        <div class="narrow"><label class="fld" for="jp-word">표기</label><input type="text" id="jp-word" placeholder="山"></div>
+        <div class="grow"><label class="fld" for="jp-kana">읽기·가나</label><input type="text" id="jp-kana" placeholder="やま"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div class="narrow"><label class="fld" for="jp-kun">훈독</label><input type="text" id="jp-kun" placeholder="やま"></div>
+        <div class="grow"><label class="fld" for="jp-mean">뜻</label><input type="text" id="jp-mean" placeholder="산"></div>
+        <button class="btn btn--seal" id="jp-add">더하기</button>
+      </div>
+      <div class="ink-rule thin"></div>
+      <button class="btn btn--ghost" id="jp-starter">기본 단어 40개 넣기</button>
+    </div>
+
+    <div class="panel">
+      <h2>듣기 퀴즈</h2>
+      <p class="hint">발음을 듣고 맞혀요. 글자는 답을 고른 뒤에 보여줘요.</p>
+      <p class="audio-warn" id="jp-audio-note" hidden></p>
+      <div id="jp-quiz-setup">
+        <div class="field-group">
+          <span class="lbl">무엇을 맞힐까요</span>
+          <div class="seg" id="jp-quiz-target" role="group">
+            <button data-t="meaning" class="is-on">뜻 맞히기</button>
+            <button data-t="word">한자 맞히기</button>
+            <button data-t="kun">훈독으로 한자</button>
+            <button data-t="flash">듣고 확인</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn btn--seal" id="jp-quiz-start" style="padding:12px 28px;">듣기 시작</button>
+          <span id="jp-quiz-note" style="font-size:13px;color:var(--ink-soft);align-self:center;"></span>
+        </div>
+      </div>
+      <div class="session" id="jp-quiz-session" hidden></div>
+    </div>
+
+    <div class="panel">
+      <h2>단어 목록 <span class="rd-status" id="jp-count-tag"></span></h2>
+      <div id="jp-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section class="view" id="view-cal">
+    <div class="panel">
+      <div class="cal-head">
+        <div class="cal-title" id="cal-title"></div>
+        <div class="cal-nav">
+          <button class="btn btn--ghost" id="cal-prev" aria-label="이전 달">‹</button>
+          <button class="btn btn--quiet" id="cal-today">오늘</button>
+          <button class="btn btn--ghost" id="cal-next" aria-label="다음 달">›</button>
+        </div>
+      </div>
+      <div class="cal-weekdays"><div class="sun">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="sat">토</div></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="diary-edit">
+        <div class="dd" id="diary-date"></div>
+        <textarea id="diary-text" placeholder="오늘 한 일을 적어요. 예: 한자 20자 외움 · 일본어 듣기 퀴즈 10개"></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn--seal" id="diary-save">저장</button>
+          <button class="btn btn--quiet" id="diary-clear">지우기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage ---------- */
+  var KEY="hanja_practice_v1", mem={};
+  // When opened as a downloaded file (not inside claude.ai), window.storage is absent.
+  var LOCAL=!(window.storage&&window.storage.get);
+  function lsOk(){ try{ var t="__hp_t"; localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; }catch(e){ return false; } }
+  async function storeGet(k){
+    try{ if(window.storage&&window.storage.get){ var r=await window.storage.get(k); return r?r.value:null; } }catch(e){}
+    try{ if(lsOk()){ var v=localStorage.getItem(k); if(v!==null) return v; } }catch(e){}
+    return (k in mem)?mem[k]:null;
+  }
+  async function storeSet(k,v){
+    try{ if(window.storage&&window.storage.set){ await window.storage.set(k,v); return; } }catch(e){}
+    try{ if(lsOk()){ localStorage.setItem(k,v); return; } }catch(e){}
+    mem[k]=v;
+  }
+
+  /* ---------- state ---------- */
+  // card:{id,hanja,reading,listId} list:{id,name} jp:{id,word,kana,romaji,meaning,on,kun} diary:{ "YYYY-MM-DD":text }
+  var state={ cards:[], lists:[], jp:[], diary:{} };
+
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function listById(id){ for(var i=0;i<state.lists.length;i++) if(state.lists[i].id===id) return state.lists[i]; return null; }
+  function findListByName(n){ for(var i=0;i<state.lists.length;i++) if(state.lists[i].name===n) return state.lists[i]; return null; }
+  function listCards(id){ return state.cards.filter(function(c){ return c.listId===id; }); }
+
+  async function load(){
+    var raw=await storeGet(KEY); if(!raw) return;
+    try{
+      var d=JSON.parse(raw);
+      if(Array.isArray(d.lists)) state.lists=d.lists.map(function(l){ return {id:l.id||uid(),name:String(l.name||"목록")}; });
+      if(Array.isArray(d.cards)) state.cards=d.cards.map(function(c){ return {id:c.id||uid(),hanja:String(c.hanja||""),reading:String(c.reading||""),on:String(c.on||""),kun:(Array.isArray(c.kun)?c.kun.map(function(x){return String(x);}).filter(Boolean):(c.kun?[String(c.kun)]:[])),listId:c.listId||""}; }).filter(function(c){ return c.hanja; });
+      if(Array.isArray(d.jp)) state.jp=d.jp.map(function(w){ return {id:w.id||uid(),word:String(w.word||""),kana:String(w.kana||""),romaji:String(w.romaji||""),meaning:String(w.meaning||""),on:String(w.on||""),kun:String(w.kun||"")}; }).filter(function(w){ return w.word||w.kana; });
+      if(d.diary && typeof d.diary==="object") state.diary=d.diary;
+      migrateLists(d);
+    }catch(e){}
+  }
+  function migrateLists(d){
+    if(state.cards.length && !state.lists.length){
+      var per=Math.max(1,parseInt(d&&d.perDay,10)||10);
+      state.cards.forEach(function(c,i){ var nm="Day "+(Math.floor(i/per)+1); var lst=findListByName(nm); if(!lst){ lst={id:uid(),name:nm}; state.lists.push(lst); } c.listId=lst.id; });
+    }
+    if(state.cards.length){ if(!state.lists.length) state.lists.push({id:uid(),name:"목록 1"}); var fid=state.lists[0].id; state.cards.forEach(function(c){ if(!c.listId||!listById(c.listId)) c.listId=fid; }); }
+  }
+  async function save(){ await storeSet(KEY, JSON.stringify(state)); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  /* ---------- hanja dictionary ---------- */
+  var HANJA={
+"一":"한 일","二":"두 이","三":"석 삼","四":"넉 사","五":"다섯 오","六":"여섯 륙","七":"일곱 칠","八":"여덟 팔","九":"아홉 구","十":"열 십","百":"일백 백","千":"일천 천","萬":"일만 만",
+"日":"날 일","月":"달 월","火":"불 화","水":"물 수","木":"나무 목","金":"쇠 금","土":"흙 토","天":"하늘 천","地":"땅 지","山":"메 산","川":"내 천","江":"강 강","海":"바다 해","河":"물 하","石":"돌 석","田":"밭 전","野":"들 야","草":"풀 초","花":"꽃 화","林":"수풀 림","森":"수풀 삼","樹":"나무 수","竹":"대 죽","雨":"비 우","雪":"눈 설","雲":"구름 운","風":"바람 풍","霜":"서리 상","露":"이슬 로","光":"빛 광","電":"번개 전","星":"별 성","空":"빌 공","氣":"기운 기",
+"人":"사람 인","男":"사내 남","女":"계집 녀","子":"아들 자","父":"아비 부","母":"어미 모","兄":"형 형","弟":"아우 제","夫":"지아비 부","婦":"며느리 부","妻":"아내 처","友":"벗 우","王":"임금 왕","民":"백성 민","君":"임금 군","臣":"신하 신","師":"스승 사","祖":"할아비 조","孫":"손자 손","身":"몸 신","體":"몸 체","心":"마음 심","首":"머리 수","頭":"머리 두","面":"낯 면","目":"눈 목","耳":"귀 이","口":"입 구","鼻":"코 비","手":"손 수","足":"발 족","血":"피 혈","力":"힘 력","毛":"터럭 모","骨":"뼈 골",
+"大":"큰 대","小":"작을 소","中":"가운데 중","上":"윗 상","下":"아래 하","左":"왼 좌","右":"오른 우","前":"앞 전","後":"뒤 후","內":"안 내","外":"바깥 외","東":"동녘 동","西":"서녘 서","南":"남녘 남","北":"북녘 북","高":"높을 고","長":"긴 장","短":"짧을 단","多":"많을 다","少":"적을 소","廣":"넓을 광","方":"모 방","遠":"멀 원","近":"가까울 근",
+"生":"날 생","死":"죽을 사","老":"늙을 로","病":"병 병","入":"들 입","出":"날 출","立":"설 립","行":"다닐 행","動":"움직일 동","來":"올 래","去":"갈 거","登":"오를 등","住":"살 주","食":"밥 식","飮":"마실 음","見":"볼 견","觀":"볼 관","聞":"들을 문","言":"말씀 언","語":"말씀 어","話":"말씀 화","讀":"읽을 독","書":"글 서","記":"기록할 기","學":"배울 학","習":"익힐 습","敎":"가르칠 교","問":"물을 문","答":"대답 답","知":"알 지","思":"생각 사","念":"생각 념","意":"뜻 의","愛":"사랑 애","信":"믿을 신","善":"착할 선","惡":"악할 악","美":"아름다울 미","正":"바를 정","直":"곧을 직","明":"밝을 명","暗":"어두울 암","作":"지을 작","成":"이룰 성","用":"쓸 용","通":"통할 통","開":"열 개","閉":"닫을 폐","始":"비로소 시","終":"마칠 종","勝":"이길 승","敗":"패할 패",
+"年":"해 년","時":"때 시","分":"나눌 분","今":"이제 금","古":"예 고","新":"새 신","春":"봄 춘","夏":"여름 하","秋":"가을 추","冬":"겨울 동","朝":"아침 조","晝":"낮 주","夕":"저녁 석","夜":"밤 야","午":"낮 오","昨":"어제 작","每":"매양 매",
+"國":"나라 국","邑":"고을 읍","洞":"골 동","里":"마을 리","村":"마을 촌","市":"저자 시","道":"길 도","路":"길 로","門":"문 문","窓":"창 창","室":"집 실","堂":"집 당","校":"학교 교","店":"가게 점","館":"집 관","京":"서울 경","家":"집 가",
+"車":"수레 차","馬":"말 마","牛":"소 우","羊":"양 양","犬":"개 견","鳥":"새 조","魚":"물고기 어","蟲":"벌레 충","米":"쌀 미","衣":"옷 의","服":"옷 복","紙":"종이 지","筆":"붓 필","墨":"먹 묵","文":"글월 문","字":"글자 자","名":"이름 명","數":"셈 수","畫":"그림 화","歌":"노래 가","旗":"기 기","銀":"은 은","銅":"구리 동","鐵":"쇠 철","玉":"구슬 옥","珠":"구슬 주",
+"德":"덕 덕","仁":"어질 인","義":"옳을 의","禮":"예도 례","智":"슬기 지","忠":"충성 충","孝":"효도 효","和":"화할 화","平":"평평할 평","安":"편안 안","幸":"다행 행","福":"복 복","命":"목숨 명","壽":"목숨 수","富":"부유할 부","貴":"귀할 귀","貧":"가난할 빈","苦":"쓸 고","喜":"기쁠 희","怒":"성낼 노","哀":"슬플 애","情":"뜻 정","性":"성품 성","樂":"즐길 락",
+"靑":"푸를 청","赤":"붉을 적","黃":"누를 황","白":"흰 백","黑":"검을 흑","綠":"푸를 록","紅":"붉을 홍","色":"빛 색",
+"有":"있을 유","無":"없을 무","不":"아닐 불","全":"온전 전","半":"반 반","同":"한가지 동","合":"합할 합","重":"무거울 중","輕":"가벼울 경","強":"강할 강","弱":"약할 약","舊":"예 구","本":"근본 본","末":"끝 말",
+"工":"장인 공","業":"업 업","農":"농사 농","商":"장사 상","事":"일 사","物":"물건 물","品":"물건 품","價":"값 가","財":"재물 재","買":"살 매","賣":"팔 매","利":"이로울 리","害":"해할 해","化":"될 화","科":"과목 과","題":"제목 제","試":"시험 시","驗":"시험 험","卒":"마칠 졸",
+"週":"주일 주","回":"돌아올 회","番":"차례 번","第":"차례 제","會":"모일 회"
+  };
+  var apiCache={};
+  function localLookup(ch){ return HANJA[ch]||apiCache[ch]||null; }
+  async function apiLookupHanja(chars){
+    var out={}; if(!chars.length) return out;
+    try{
+      var prompt="다음 한자 각각의 한국어 대표 훈음을 알려줘. 값은 '뜻 음' 형식(예: 물 수)으로, 마크다운·설명 없이 JSON 객체로만 답해. 키는 한자 한 글자, 값은 훈음. 한자: "+chars.join(" ");
+      var res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+      if(!res.ok) throw 0;
+      var data=await res.json(); var text=(data.content||[]).map(function(b){return b.type==="text"?b.text:"";}).join("").trim();
+      text=text.replace(/```json/g,"").replace(/```/g,"").trim();
+      var obj=JSON.parse(text); for(var k in obj){ if(obj[k]){ out[k]=String(obj[k]).trim(); apiCache[k]=out[k]; } }
+    }catch(e){}
+    return out;
+  }
+
+  var $=function(id){ return document.getElementById(id); };
+  var toastT; function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); },2200); }
+
+  /* ---------- tabs ---------- */
+  function setTab(name){
+    var tabs=document.querySelectorAll(".tab"); for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle("is-on", tabs[i].dataset.tab===name);
+    ["add","study","manage","jp","cal"].forEach(function(n){ $("view-"+n).classList.toggle("is-on", n===name); });
+    if(name==="add") renderTargetList();
+    if(name==="study"){ endSessionView(); renderStudyLists(); updateStudyAudioNote(); updateStartNote(); }
+    if(name==="manage") renderManage();
+    if(name==="jp"){ endJpSession(); renderJp(); }
+    if(name==="cal") renderCalendar();
+  }
+  (function(){ var t=document.querySelectorAll(".tab"); for(var i=0;i<t.length;i++) t[i].addEventListener("click", function(){ setTab(this.dataset.tab); }); })();
+  function renderStats(){ $("stat-chars").textContent=state.cards.length; $("stat-lists").textContent=state.lists.length; $("stat-jp").textContent=state.jp.length; }
+
+  /* ---------- lists ---------- */
+  var selectedTargetList="", selectedStudyList="all";
+  function ensureTargetList(){ if(!state.lists.length){ var id=uid(); state.lists.push({id:id,name:"목록 1"}); selectedTargetList=id; } if(!listById(selectedTargetList)) selectedTargetList=state.lists[0].id; return selectedTargetList; }
+  function createList(name){ name=(name||"").trim()||("목록 "+(state.lists.length+1)); var id=uid(); state.lists.push({id:id,name:name}); return id; }
+  function renderTargetList(){
+    var sel=$("target-list"); if(!sel) return;
+    if(!state.lists.length) state.lists.push({id:uid(),name:"목록 1"});
+    if(!listById(selectedTargetList)) selectedTargetList=state.lists[0].id;
+    sel.innerHTML=""; state.lists.forEach(function(l){ var o=document.createElement("option"); o.value=l.id; o.textContent=l.name+" ("+listCards(l.id).length+"자)"; if(l.id===selectedTargetList) o.selected=true; sel.appendChild(o); });
+  }
+  $("target-list").addEventListener("change", function(){ selectedTargetList=this.value; });
+  $("new-list").addEventListener("click", function(){ var r=$("new-list-row"); r.style.display=r.style.display==="none"?"flex":"none"; if(r.style.display==="flex") $("new-list-name").focus(); });
+  function doCreateList(){ var id=createList($("new-list-name").value); selectedTargetList=id; $("new-list-name").value=""; $("new-list-row").style.display="none"; save(); renderTargetList(); renderStats(); renderStudyLists(); toast("'"+listById(id).name+"' 목록을 만들었어요"); }
+  $("create-list").addEventListener("click", doCreateList);
+  $("new-list-name").addEventListener("keydown", function(e){ if(e.key==="Enter") doCreateList(); });
+
+  /* ---------- hanja dictionary search ---------- */
+  function refreshPreview(){ var h=$("one-han").value.trim(), r=$("one-rd").value.trim(); var pv=$("preview"); if(!h&&!r){ pv.hidden=true; return; } pv.hidden=false; $("pv-han").textContent=h||"?"; $("pv-rd").textContent=r||"—"; }
+
+  // Robustly pull a JSON array out of a model reply that may include prose/markdown/wrapping.
+  function parseJsonArray(text){
+    if(!text) return null;
+    text=String(text).replace(/```json/gi,"").replace(/```/g,"").trim();
+    try{ var d=JSON.parse(text); if(Array.isArray(d)) return d; if(d&&typeof d==="object"){ for(var k in d){ if(Array.isArray(d[k])) return d[k]; } } }catch(e){}
+    var s=text.indexOf("["), en=text.lastIndexOf("]");
+    if(s>=0&&en>s){ try{ var a=JSON.parse(text.slice(s,en+1)); if(Array.isArray(a)) return a; }catch(e){} }
+    return null;
+  }
+  var lastApiErr="";
+  // Calls the model and returns the raw text, or null on failure (reason in lastApiErr).
+  async function apiText(prompt, maxTokens){
+    lastApiErr="";
+    var res;
+    try{
+      res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:maxTokens||1200,messages:[{role:"user",content:prompt}]})});
+    }catch(e){ lastApiErr="네트워크 오류 ("+(e&&e.message||e)+")"; return null; }
+    if(!res.ok){ var body=""; try{ body=await res.text(); }catch(e){} lastApiErr="서버 응답 "+res.status+(body?" · "+body.slice(0,120):""); return null; }
+    var data; try{ data=await res.json(); }catch(e){ lastApiErr="응답을 읽지 못함"; return null; }
+    var text=(data&&data.content||[]).map(function(b){return b&&b.type==="text"?b.text:"";}).join("").trim();
+    if(!text){ lastApiErr="빈 응답"; return null; }
+    return text;
+  }
+
+  async function searchHanjaDict(query){
+    function toArr(v){ if(Array.isArray(v)) return v.map(function(x){return String(x).trim();}).filter(Boolean); if(v){ return [String(v).trim()]; } return []; }
+    if(window.HANJA_API){
+      try{
+        var r=await fetch(window.HANJA_API+"?q="+encodeURIComponent(query));
+        if(!r.ok){ lastApiErr="서버 응답 "+r.status; return null; }
+        var arr2=await r.json();
+        if(!Array.isArray(arr2)){ lastApiErr="응답 형식 오류"; return null; }
+        return arr2.map(function(w){ return {hanja:String(w.hanja||"").trim(),reading:String(w.reading||"").trim(),on:toArr(w.on),kun:toArr(w.kun)}; }).filter(function(w){ return w.hanja; });
+      }catch(e){ lastApiErr="네트워크 오류 ("+(e&&e.message||e)+")"; return null; }
+    }
+    var prompt="한자사전 검색이야. 검색어 '"+query+"'(한국어 뜻·음이거나 한자)에 해당하는 한자를 관련도 순으로 최대 5개 알려줘. 오직 JSON 배열 하나만 출력해. 마크다운·설명·앞뒤 문장 절대 금지. 형식: [{\"hanja\":\"한자 한 글자\",\"reading\":\"한국어 훈음(예: 모일 회)\",\"on\":[\"음독 가타카나\"],\"kun\":[\"훈독 히라가나\"]}]. on·kun은 배열이고 없으면 []. 훈독은 흔한 것 위주로 최대 4개.";
+    var text=await apiText(prompt,1500); if(text===null) return null;
+    var arr=parseJsonArray(text); if(!arr){ lastApiErr="응답 형식 오류"; return null; }
+    return arr.map(function(w){ return {hanja:String(w.hanja||"").trim(),reading:String(w.reading||"").trim(),on:toArr(w.on),kun:toArr(w.kun)}; }).filter(function(w){ return w.hanja; });
+  }
+  function hanNaverUrl(q){ return "https://ja.dict.naver.com/#/search?query="+encodeURIComponent(q); }
+  $("han-q").addEventListener("input", function(){ var q=this.value.trim(); $("han-naver").href=q?hanNaverUrl(q):"https://ja.dict.naver.com/"; });
+  $("han-q").addEventListener("keydown", function(e){ if(e.key==="Enter") doHanSearch(); });
+  $("han-search").addEventListener("click", doHanSearch);
+  async function doHanSearch(){
+    var q=$("han-q").value.trim(); if(!q){ toast("검색어를 입력해주세요"); return; }
+    $("han-naver").href=hanNaverUrl(q);
+    var btn=$("han-search"); btn.disabled=true; var orig=btn.textContent; btn.textContent="검색 중…"; $("han-search-note").textContent="";
+    var rows=await searchHanjaDict(q); btn.disabled=false; btn.textContent=orig;
+    var box=$("han-results"); box.innerHTML="";
+    if(rows===null){ $("han-search-note").textContent="검색이 안 됐어요 ["+(lastApiErr||"원인 불명")+"]. 파일을 오프라인으로 열었다면 검색은 claude.ai 안에서만 돼요 — 아래 '직접 넣기'를 쓰세요."; return; }
+    if(!rows.length){ $("han-search-note").textContent="결과가 없어요. 다른 말(뜻·음 또는 한자)로 검색하거나 직접 넣어보세요."; return; }
+    $("han-search-note").textContent="훈독은 원하는 것만 탭해서 고르고(여러 개 가능), '가져오기'를 눌러요. ▶ 로 들어볼 수 있어요.";
+    rows.forEach(function(w){
+      var card=document.createElement("div"); card.className="result-card";
+      var onLine = w.on.length ? '<div class="rc-read">음독 <b>'+esc(w.on.join(" · "))+'</b></div>' : '';
+      var kunHTML="";
+      if(w.kun.length){
+        kunHTML='<div class="rc-read" style="margin-top:6px;">훈독 고르기</div><div class="kun-pick">'+
+          w.kun.map(function(k,idx){ return '<span class="kun-chip'+(idx===0?" is-on":"")+'" data-k="'+esc(k)+'"><button class="kp-play" tabindex="-1" aria-label="듣기">'+SPK+'</button><span class="kp-l">'+esc(k)+'</span></span>'; }).join("")+
+          '</div>';
+      }
+      card.innerHTML='<div class="tian" style="width:48px;height:48px;flex:none;align-self:flex-start;"><span class="han" style="font-size:30px;">'+esc(w.hanja)+'</span></div>'+
+        '<div class="rc-body"><div class="rc-top"><span class="rc-w" style="font-size:18px;">'+esc(w.reading||"—")+'</span></div>'+onLine+kunHTML+'</div>'+
+        '<button class="btn btn--ghost rc-add" style="align-self:flex-start;">가져오기</button>';
+      // kun chip toggle + play
+      var chips=card.querySelectorAll(".kun-chip");
+      for(var ci=0;ci<chips.length;ci++){
+        (function(chip){
+          chip.addEventListener("click", function(e){ if(e.target.closest(".kp-play")) return; chip.classList.toggle("is-on"); });
+          var pb=chip.querySelector(".kp-play"); if(pb) pb.addEventListener("click", function(e){ e.stopPropagation(); speakJa(chip.getAttribute("data-k")); });
+        })(chips[ci]);
+      }
+      var addBtn=card.querySelector(".rc-add");
+      addBtn.addEventListener("click", function(){
+        var picked=[]; var on=card.querySelectorAll(".kun-chip.is-on"); for(var i=0;i<on.length;i++) picked.push(on[i].getAttribute("data-k"));
+        var tlid=ensureTargetList();
+        state.cards.push({id:uid(),hanja:w.hanja,reading:w.reading,on:w.on.join(" · "),kun:picked,listId:tlid});
+        save(); renderStats(); renderTargetList(); renderStudyLists();
+        addBtn.textContent="가져옴 ✓"; addBtn.disabled=true;
+        toast("'"+w.hanja+"'를 '"+listById(tlid).name+"'에 넣었어요"+(picked.length?" (훈독 "+picked.length+"개)":""));
+      });
+      box.appendChild(card);
+    });
+  }
+
+  /* ---------- hanja manual add ---------- */
+  $("one-han").addEventListener("input", refreshPreview);
+  $("one-rd").addEventListener("input", refreshPreview);
+  function addOne(){
+    var h=$("one-han").value.trim(), r=$("one-rd").value.trim(), kunRaw=$("one-kun").value.trim(); if(!h){ toast("한자를 넣어주세요"); return; }
+    var kunA=kunRaw?kunRaw.split(/[,\u00b7\/\s]+/).filter(Boolean):[];
+    var lid=ensureTargetList(); state.cards.push({id:uid(),hanja:h,reading:r,on:"",kun:kunA,listId:lid});
+    save(); renderStats(); renderTargetList(); renderStudyLists();
+    $("one-han").value=""; $("one-rd").value=""; $("one-kun").value=""; refreshPreview(); $("one-han").focus();
+    toast("'"+listById(lid).name+"'에 더했어요");
+  }
+  $("one-add").addEventListener("click", addOne);
+  $("one-kun").addEventListener("keydown", function(e){ if(e.key==="Enter") addOne(); });
+
+  /* ---------- hanja study ---------- */
+  var mode="flash", dir="h2r";
+  function renderStudyLists(){
+    var box=$("list-chips"); if(!box) return; box.innerHTML="";
+    if(!state.cards.length){ box.innerHTML='<span style="font-size:13px;color:var(--ink-soft);">먼저 \u2018한자 추가\u2019에서 한자를 넣어주세요.</span>'; return; }
+    if(selectedStudyList!=="all"&&!listById(selectedStudyList)) selectedStudyList="all";
+    state.lists.forEach(function(l){ var n=listCards(l.id).length; if(n===0) return; var c=document.createElement("button"); c.className="chip"+((selectedStudyList===l.id)?" is-on":""); c.innerHTML=esc(l.name)+' <span class="ct">'+n+"</span>"; c.addEventListener("click", function(){ selectedStudyList=l.id; renderStudyLists(); updateStartNote(); }); box.appendChild(c); });
+    var all=document.createElement("button"); all.className="chip"+((selectedStudyList==="all")?" is-on":""); all.innerHTML='전체 <span class="ct">'+state.cards.length+"</span>"; all.addEventListener("click", function(){ selectedStudyList="all"; renderStudyLists(); updateStartNote(); }); box.appendChild(all);
+  }
+  function kunList(c){ return Array.isArray(c.kun)?c.kun.filter(Boolean):(c.kun?[String(c.kun)]:[]); }
+  function isKunMode(){ return mode==="kun"||mode==="kunq"; }
+  function studyPool(){ var base=selectedStudyList==="all"?state.cards.slice():listCards(selectedStudyList); if(isKunMode()) return base.filter(function(c){ return kunList(c).length; }); return base; }
+  function updateStudyAudioNote(){ var el=$("han-audio-note"); if(!el) return; if(!isKunMode()){ el.hidden=true; return; } if(!audioSupported()){ el.hidden=false; el.textContent="이 브라우저는 음성 재생을 지원하지 않아 훈독 듣기를 쓸 수 없어요."; return; } if(!getJaVoice()){ el.hidden=false; el.textContent="기기에 일본어 음성이 없어 훈독 발음이 부정확할 수 있어요."; return; } el.hidden=true; }
+  (function(){ var s=$("mode-seg").querySelectorAll("button"); for(var i=0;i<s.length;i++) s[i].addEventListener("click", function(){ mode=this.dataset.mode; var b=$("mode-seg").querySelectorAll("button"); for(var j=0;j<b.length;j++) b[j].classList.toggle("is-on", b[j]===this); $("dir-group").style.display=isKunMode()?"none":""; updateStudyAudioNote(); updateStartNote(); }); var s2=$("dir-seg").querySelectorAll("button"); for(var k=0;k<s2.length;k++) s2[k].addEventListener("click", function(){ dir=this.dataset.dir; var b=$("dir-seg").querySelectorAll("button"); for(var j=0;j<b.length;j++) b[j].classList.toggle("is-on", b[j]===this); }); })();
+  function updateStartNote(){ var pool=studyPool(); var note=$("start-note"), btn=$("start"); if(!pool.length){ note.textContent=isKunMode()?"훈독이 있는 한자가 없어요. 사전에서 가져오면 훈독이 같이 들어와요.":"이 목록에는 한자가 없어요."; btn.disabled=true; return; } if(isKunMode()&&!audioSupported()){ note.textContent="음성 재생이 안 돼요."; btn.disabled=true; return; } if((mode==="quiz"||mode==="kunq")&&pool.length<2){ note.textContent="객관식은 2자 이상부터 가능해요. (훈독을 소리만 듣고 확인하려면 '훈독 듣기'를 쓰세요.)"; btn.disabled=true; return; } btn.disabled=false; note.textContent=pool.length+"자를 섞어서 냅니다."; }
+  $("start").addEventListener("click", startSession);
+  var sess=null;
+  function startSession(){ var pool=studyPool(); if(!pool.length) return; if((mode==="quiz"||mode==="kunq")&&pool.length<2) return; if(isKunMode()&&!audioSupported()) return; sess={pool:pool,queue:shuffle(pool),idx:0,mode:mode,dir:dir,flipped:false,answered:false,chosen:null,spoke:false,ok:0,missed:[],__opts:null}; $("study-setup").hidden=true; $("study-session").hidden=false; renderSession(); }
+  function endSessionView(){ sess=null; $("study-session").hidden=true; $("study-setup").hidden=false; }
+  function promptText(c,d){ return d==="h2r"?c.hanja:c.reading; }
+  function answerText(c,d){ return d==="h2r"?c.reading:c.hanja; }
+  function faceHTML(v,asHan){ return asHan?'<div class="tian"><span class="han">'+esc(v||"?")+'</span></div>':'<div class="tian"><span class="reading">'+esc(v||"—")+'</span></div>'; }
+  function makeOptions(card){ var key=sess.dir==="h2r"?"reading":"hanja"; var correct=card[key]; var seen={}; seen[correct]=1; var others=[]; var sp=shuffle(sess.pool); for(var i=0;i<sp.length;i++){ if(sp[i]===card) continue; var v=sp[i][key]; if(!v||seen[v]) continue; seen[v]=1; others.push(v); if(others.length>=3) break; } return {opts:shuffle([correct].concat(others)),correct:correct}; }
+  function makeKunOptions(card){ var correct=card.hanja; var seen={}; seen[correct]=1; var others=[]; var sp=shuffle(sess.pool); for(var i=0;i<sp.length;i++){ if(sp[i]===card) continue; var v=sp[i].hanja; if(!v||seen[v]) continue; seen[v]=1; others.push(v); if(others.length>=3) break; } return {opts:shuffle([correct].concat(others)),correct:correct}; }
+  function kunRevealHTML(card){ return '<div class="jp-reveal"><div class="w" style="font-family:var(--serif);">'+esc(card.hanja)+'</div><div class="k">'+esc(card.reading||"")+'</div><div class="rr">훈독 <b>'+esc(kunList(card).join(" · "))+'</b>'+(card.on?" · 음독 <b>"+esc(card.on)+"</b>":"")+'</div></div>'; }
+  function renderSession(){
+    if(!sess) return; if(sess.idx>=sess.queue.length){ renderEnd(); return; }
+    var card=sess.queue[sess.idx], total=sess.queue.length, cur=sess.idx+1, pct=Math.round((sess.idx/total)*100); var el=$("study-session");
+    if(sess.mode==="kun"||sess.mode==="kunq"){
+      if(sess.curKunFor!==card){ var kl=kunList(card); sess.curKun=kl.length?kl[Math.floor(Math.random()*kl.length)]:(card.reading||""); sess.curKunFor=card; }
+      var playKun=sess.curKun;
+      var head='<div class="progress"><span class="count">'+cur+" / "+total+'</span><div class="bar"><i style="width:'+pct+'%"></i></div></div>'+
+        '<div class="jp-session"><div class="play-wrap"><button class="play-btn" id="han-play" aria-label="훈독 다시 듣기">'+SPK+'</button></div><div class="play-hint">훈독 듣기 · 어떤 한자일까요</div>';
+      var body, o=null;
+      if(sess.mode==="kunq"){
+        o=sess.__opts||(sess.__opts=makeKunOptions(card)); var oh="";
+        for(var i=0;i<o.opts.length;i++){ var v=o.opts[i], cls="opt"; if(sess.answered){ if(v===o.correct) cls+=" correct"; else if(v===sess.chosen) cls+=" wrong"; } oh+='<button class="'+cls+'" data-opt="'+esc(v)+'"'+(sess.answered?" disabled":"")+'>'+esc(v)+"</button>"; }
+        body='<div class="options" style="margin-top:18px;">'+oh+'</div>'+(sess.answered?kunRevealHTML(card)+'<div class="controls" style="margin-top:12px;"><button class="btn btn--seal" data-act="next" style="padding:11px 30px;">다음</button></div>':'');
+      } else {
+        body=sess.flipped ? kunRevealHTML(card)+'<div class="controls" style="margin-top:14px;"><button class="btn btn--ghost" data-act="again">몰라요</button><button class="btn btn--jade" data-act="knew">알아요</button></div>'
+                          : '<div class="controls" style="margin-top:18px;"><button class="btn btn--seal" data-act="reveal" style="padding:11px 30px;">답 보기</button></div>';
+      }
+      el.innerHTML=head+body+'<div style="margin-top:16px;"><button class="btn btn--quiet" data-act="quit">그만두기</button></div></div>';
+      $("han-play").addEventListener("click", function(){ this.classList.remove("pulse"); void this.offsetWidth; this.classList.add("pulse"); speakJa(playKun); });
+      if(sess.mode==="kunq"&&!sess.answered&&o){ var ob=el.querySelectorAll("[data-opt]"); for(var m=0;m<ob.length;m++) ob[m].addEventListener("click", function(){ sess.answered=true; sess.chosen=this.getAttribute("data-opt"); if(sess.chosen===o.correct) sess.ok++; else sess.missed.push(card); renderSession(); }); }
+      bindActs(el);
+      if(!sess.spoke){ sess.spoke=true; var pb=$("han-play"); if(pb) pb.classList.add("pulse"); speakJa(playKun); }
+      return;
+    }
+    if(sess.mode==="flash"){
+      var isHan=sess.dir==="h2r";
+      el.innerHTML='<div class="progress"><span class="count">'+cur+" / "+total+'</span><div class="bar"><i style="width:'+pct+'%"></i></div></div>'+
+        '<div class="stage"><div class="flip'+(sess.flipped?" flipped":"")+'" id="flip"><div class="face front" data-flip="1"><span class="flip-tag">'+(isHan?"한자":"뜻 · 음")+'</span>'+faceHTML(promptText(card,sess.dir),isHan)+'</div><div class="face back" data-flip="1"><span class="flip-tag">'+(isHan?"뜻 · 음":"한자")+'</span>'+faceHTML(answerText(card,sess.dir),!isHan)+'</div></div></div>'+
+        '<div class="controls">'+(sess.flipped?'<button class="btn btn--ghost" data-act="again">다시 볼래요</button><button class="btn btn--jade" data-act="knew">알아요</button>':'<button class="btn btn--seal" data-act="flip" style="padding:11px 30px;">뒤집기</button>')+'</div>'+
+        '<div style="margin-top:16px;"><button class="btn btn--quiet" data-act="quit">그만두기</button></div>';
+      var f=el.querySelectorAll('[data-flip]'); for(var i2=0;i2<f.length;i2++) f[i2].addEventListener("click", function(){ if(!sess.flipped){ sess.flipped=true; renderSession(); } }); bindActs(el);
+    } else {
+      var isHan2=sess.dir==="h2r", o2=sess.__opts||(sess.__opts=makeOptions(card)), oh2="";
+      for(var k=0;k<o2.opts.length;k++){ var v2=o2.opts[k], cls2="opt"; if(sess.answered){ if(v2===o2.correct) cls2+=" correct"; else if(v2===sess.chosen) cls2+=" wrong"; } oh2+='<button class="'+cls2+'" data-opt="'+esc(v2)+'"'+(sess.answered?" disabled":"")+'>'+esc(v2)+"</button>"; }
+      el.innerHTML='<div class="progress"><span class="count">'+cur+" / "+total+'</span><div class="bar"><i style="width:'+pct+'%"></i></div></div>'+'<div class="quiz-stage">'+faceHTML(promptText(card,sess.dir),isHan2)+'</div><div class="options">'+oh2+'</div><div class="controls" style="margin-top:18px;">'+(sess.answered?'<button class="btn btn--seal" data-act="next" style="padding:11px 30px;">다음</button>':'')+'</div><div style="margin-top:16px;"><button class="btn btn--quiet" data-act="quit">그만두기</button></div>';
+      if(!sess.answered){ var ob2=el.querySelectorAll("[data-opt]"); for(var m2=0;m2<ob2.length;m2++) ob2[m2].addEventListener("click", function(){ sess.answered=true; sess.chosen=this.getAttribute("data-opt"); if(sess.chosen===o2.correct) sess.ok++; else sess.missed.push(card); renderSession(); }); } bindActs(el);
+    }
+  }
+  function bindActs(el){ var b=el.querySelectorAll("[data-act]"); for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){ var a=this.getAttribute("data-act"); if(a==="flip"){ sess.flipped=true; renderSession(); } else if(a==="reveal"){ sess.flipped=true; renderSession(); } else if(a==="dunno"){ sess.flipped=true; renderSession(); } else if(a==="knew"){ adv(true); } else if(a==="again"){ adv(false); } else if(a==="next"){ sess.answered=false; sess.chosen=null; sess.__opts=null; sess.spoke=false; sess.idx++; renderSession(); } else if(a==="quit"){ endSessionView(); } else if(a==="retry"){ retry(); } else if(a==="restart"){ sess.queue=shuffle(sess.pool); sess.idx=0; sess.ok=0; sess.missed=[]; sess.flipped=false; sess.answered=false; sess.spoke=false; sess.__opts=null; renderSession(); } else if(a==="done"){ endSessionView(); } }); }
+  function adv(knew){ var card=sess.queue[sess.idx]; if(knew) sess.ok++; else sess.missed.push(card); sess.idx++; sess.flipped=false; sess.spoke=false; renderSession(); }
+  function retry(){ var m=sess.missed.slice(); sess.queue=shuffle(m); sess.pool=m; sess.idx=0; sess.ok=0; sess.missed=[]; sess.flipped=false; sess.answered=false; sess.spoke=false; sess.__opts=null; renderSession(); }
+  function renderEnd(){ var total=sess.queue.length, ok=sess.ok, no=sess.missed.length, r=total?ok/total:0; var mark=r===1?"完":(r>=0.7?"良":(r>=0.4?"中":"練")); var line=r===1?"전부 맞혔어요.":(r>=0.7?"거의 다 외웠네요.":(r>=0.4?"조금만 더 보면 돼요.":"다시 한 번 훑어봐요.")); $("study-session").innerHTML='<div class="result"><div class="big">'+mark+'</div><div class="sub">'+line+'</div><div class="tally"><span class="ok">알아요<b>'+ok+'</b></span><span class="no">다시<b>'+no+'</b></span></div><div class="controls">'+(no>0?'<button class="btn btn--seal" data-act="retry">틀린 '+no+'자 다시</button>':'')+'<button class="btn btn--ghost" data-act="restart">처음부터</button><button class="btn btn--quiet" data-act="done">끝내기</button></div></div>'; bindActs($("study-session")); }
+  document.addEventListener("keydown", function(e){ if(!sess||$("study-session").hidden) return; if(!$("view-study").classList.contains("is-on")) return; var t=e.target; if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable)) return; if(sess.mode==="flash"){ if(e.code==="Space"&&!sess.flipped){ e.preventDefault(); sess.flipped=true; renderSession(); } } else { if((sess.mode==="kun"||sess.mode==="kunq")&&e.code==="Space"){ e.preventDefault(); if(sess.curKun) speakJa(sess.curKun); return; } if(!sess.answered){ var n=parseInt(e.key,10); if(n>=1&&n<=9){ var btns=$("study-session").querySelectorAll("[data-opt]"); if(btns[n-1]) btns[n-1].click(); } } } });
+
+  /* ---------- manage ---------- */
+  var editing=null, renamingList=null;
+  function renderManage(){
+    var box=$("manage-list"); box.innerHTML="";
+    if(!state.cards.length&&state.lists.length<=1){ box.innerHTML='<div class="panel"><div class="empty"><div class="mark">空</div><p>아직 모은 한자가 없어요.</p><button class="btn btn--seal" id="go-add">한자 추가하러 가기</button></div></div>'; var g=$("go-add"); if(g) g.addEventListener("click", function(){ setTab("add"); }); return; }
+    var panel=document.createElement("div"); panel.className="panel";
+    state.lists.forEach(function(l){
+      var cards=listCards(l.id), grp=document.createElement("div"); grp.className="list-group";
+      var head=document.createElement("div"); head.className="list-head";
+      if(renamingList===l.id){
+        head.innerHTML='<div class="ln-fields"><input type="text" class="ln-name" value="'+esc(l.name)+'"><button class="icon-btn ln-save" style="color:var(--jade-deep);">저장</button><button class="icon-btn ln-cancel">취소</button></div>';
+        head.querySelector(".ln-save").addEventListener("click", function(){ var v=head.querySelector(".ln-name").value.trim(); if(v) l.name=v; renamingList=null; save(); renderManage(); renderTargetList(); renderStudyLists(); });
+        head.querySelector(".ln-cancel").addEventListener("click", function(){ renamingList=null; renderManage(); });
+      } else {
+        head.innerHTML='<span class="nm">'+esc(l.name)+'</span><span class="ct">'+cards.length+'자</span><span class="sp"></span><button class="icon-btn act-rename">이름변경</button><button class="icon-btn act-dellist">목록삭제</button>';
+        head.querySelector(".act-rename").addEventListener("click", function(){ renamingList=l.id; renderManage(); });
+        head.querySelector(".act-dellist").addEventListener("click", function(){ var b=this; if(b.dataset.armed){ state.cards=state.cards.filter(function(c){ return c.listId!==l.id; }); state.lists=state.lists.filter(function(x){ return x.id!==l.id; }); save(); renderManage(); renderStats(); renderTargetList(); renderStudyLists(); toast("목록을 지웠어요"); } else { b.dataset.armed="1"; b.textContent="정말? (단어도 삭제)"; b.style.color="var(--seal)"; setTimeout(function(){ if(b){ b.dataset.armed=""; b.textContent="목록삭제"; b.style.color=""; } },2800); } });
+      }
+      grp.appendChild(head);
+      if(cards.length) cards.forEach(function(c){ grp.appendChild(itemRow(c)); });
+      else { var e=document.createElement("div"); e.className="list-empty"; e.textContent="비어 있어요 — '한자 추가'에서 이 목록을 골라 넣어보세요."; grp.appendChild(e); }
+      panel.appendChild(grp);
+    });
+    box.appendChild(panel);
+  }
+  function itemRow(card){
+    var row=document.createElement("div"); row.className="item";
+    if(editing===card.id){
+      var opts=state.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===card.listId?" selected":"")+'>'+esc(l.name)+"</option>"; }).join("");
+      row.innerHTML='<div class="edit-fields"><input type="text" class="ed-han" value="'+esc(card.hanja)+'" maxlength="8" style="max-width:70px;"><input type="text" class="ed-rd" value="'+esc(card.reading)+'" placeholder="뜻 음"><input type="text" class="ed-kun" value="'+esc(kunList(card).join(", "))+'" placeholder="훈독(여러 개는 쉼표)" style="max-width:130px;"><select class="ed-list">'+opts+'</select></div><div class="acts"><button class="icon-btn ed-save" style="color:var(--jade-deep);">저장</button><button class="icon-btn ed-cancel">취소</button></div>';
+      row.querySelector(".ed-save").addEventListener("click", function(){ card.hanja=row.querySelector(".ed-han").value.trim()||card.hanja; card.reading=row.querySelector(".ed-rd").value.trim(); var kv=row.querySelector(".ed-kun").value.trim(); card.kun=kv?kv.split(/[,\u00b7\/]+/).map(function(x){return x.trim();}).filter(Boolean):[]; card.listId=row.querySelector(".ed-list").value; editing=null; save(); renderStats(); renderManage(); renderTargetList(); renderStudyLists(); toast("고쳤어요"); });
+      row.querySelector(".ed-cancel").addEventListener("click", function(){ editing=null; renderManage(); });
+    } else {
+      row.innerHTML='<div class="mini">'+esc(card.hanja)+'</div><div class="rd">'+esc(card.reading||"—")+(kunList(card).length?' <span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);">훈독 '+esc(kunList(card).join(" · "))+'</span>':'')+'</div><div class="acts"><button class="icon-btn act-edit">수정</button><button class="icon-btn act-del">삭제</button></div>';
+      row.querySelector(".act-edit").addEventListener("click", function(){ editing=card.id; renderManage(); });
+      row.querySelector(".act-del").addEventListener("click", function(){ var b=this; if(b.dataset.armed){ state.cards=state.cards.filter(function(c){ return c.id!==card.id; }); save(); renderStats(); renderManage(); renderTargetList(); renderStudyLists(); toast("지웠어요"); } else { b.dataset.armed="1"; b.textContent="정말?"; b.style.color="var(--seal)"; setTimeout(function(){ if(b){ b.dataset.armed=""; b.textContent="삭제"; b.style.color=""; } },2500); } });
+    }
+    return row;
+  }
+  $("export-copy").addEventListener("click", function(){ var data=JSON.stringify(state,null,2); if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(data).then(function(){ toast("백업을 복사했어요"); }).catch(function(){ fb(data); }); } else fb(data); });
+  function fb(t){ $("import-box").value=t; toast("아래 칸에 백업을 넣었어요 — 길게 눌러 복사하세요"); }
+  $("export-file").addEventListener("click", function(){ var data=JSON.stringify(state,null,2); try{ var blob=new Blob([data],{type:"application/json"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download="hanja_backup.json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){ URL.revokeObjectURL(url); },1000); toast("파일로 저장했어요"); }catch(e){ fb(data); } });
+  $("import-btn").addEventListener("click", function(){
+    var text=$("import-box").value.trim(); if(!text){ toast("가져올 내용을 붙여넣어 주세요"); return; }
+    try{
+      var d=JSON.parse(text);
+      state.lists=Array.isArray(d.lists)?d.lists.map(function(l){ return {id:l.id||uid(),name:String(l.name||"목록")}; }):[];
+      state.cards=Array.isArray(d.cards)?d.cards.map(function(c){ return {id:c.id||uid(),hanja:String(c.hanja||""),reading:String(c.reading||""),on:String(c.on||""),kun:(Array.isArray(c.kun)?c.kun.map(function(x){return String(x);}).filter(Boolean):(c.kun?[String(c.kun)]:[])),listId:c.listId||""}; }).filter(function(c){ return c.hanja; }):[];
+      state.jp=Array.isArray(d.jp)?d.jp.map(function(w){ return {id:w.id||uid(),word:String(w.word||""),kana:String(w.kana||""),romaji:String(w.romaji||""),meaning:String(w.meaning||""),on:String(w.on||""),kun:String(w.kun||"")}; }).filter(function(w){ return w.word||w.kana; }):[];
+      state.diary=(d.diary&&typeof d.diary==="object")?d.diary:{};
+      migrateLists(d); save(); renderStats(); renderManage(); renderTargetList(); renderStudyLists(); renderJp(); renderCalendar(); $("import-box").value="";
+      toast(state.cards.length+"자 · "+state.jp.length+"단어를 가져왔어요");
+    }catch(e){ toast("JSON 형식이 올바르지 않아요"); }
+  });
+  $("clear-all").addEventListener("click", function(){ $("clear-all").style.display="none"; $("clear-confirm").style.display=""; $("clear-yes").style.display=""; $("clear-no").style.display=""; });
+  $("clear-no").addEventListener("click", resetClear);
+  $("clear-yes").addEventListener("click", function(){ state.cards=[]; state.lists=[]; selectedTargetList=""; selectedStudyList="all"; save(); renderStats(); renderManage(); renderTargetList(); renderStudyLists(); resetClear(); toast("모두 지웠어요"); });
+  function resetClear(){ $("clear-all").style.display=""; $("clear-confirm").style.display="none"; $("clear-yes").style.display="none"; $("clear-no").style.display="none"; }
+
+  /* ================= JAPANESE ================= */
+  var SPK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="currentColor"/><path d="M16 8.8a4 4 0 0 1 0 6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.6 6.2a7 7 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  var JP_STARTER=[["山","やま","yama","산"],["川","かわ","kawa","강"],["人","ひと","hito","사람"],["犬","いぬ","inu","개"],["猫","ねこ","neko","고양이"],["本","ほん","hon","책"],["車","くるま","kuruma","자동차"],["家","いえ","ie","집"],["水","みず","mizu","물"],["花","はな","hana","꽃"],["学校","がっこう","gakkou","학교"],["先生","せんせい","sensei","선생님"],["学生","がくせい","gakusei","학생"],["友達","ともだち","tomodachi","친구"],["名前","なまえ","namae","이름"],["食べる","たべる","taberu","먹다"],["飲む","のむ","nomu","마시다"],["見る","みる","miru","보다"],["行く","いく","iku","가다"],["来る","くる","kuru","오다"],["する","する","suru","하다"],["話す","はなす","hanasu","말하다"],["読む","よむ","yomu","읽다"],["書く","かく","kaku","쓰다"],["聞く","きく","kiku","듣다"],["大きい","おおきい","ookii","크다"],["小さい","ちいさい","chiisai","작다"],["新しい","あたらしい","atarashii","새롭다"],["古い","ふるい","furui","오래되다"],["高い","たかい","takai","높다·비싸다"],["今日","きょう","kyou","오늘"],["明日","あした","ashita","내일"],["昨日","きのう","kinou","어제"],["朝","あさ","asa","아침"],["夜","よる","yoru","밤"],["時間","じかん","jikan","시간"],["お金","おかね","okane","돈"],["店","みせ","mise","가게"],["駅","えき","eki","역"],["道","みち","michi","길"]];
+
+  if(window.speechSynthesis){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=function(){ updateJpAudioNote(); updateJpQuizNote(); }; }catch(e){} }
+  function audioSupported(){ return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance); }
+  function getJaVoice(){ if(!audioSupported()) return null; var vs=speechSynthesis.getVoices()||[]; for(var i=0;i<vs.length;i++){ if(((vs[i].lang||"").toLowerCase()).indexOf("ja")===0) return vs[i]; } return null; }
+  function speakJa(text){ if(!audioSupported()||!text) return false; try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; u.rate=0.9; u.pitch=1; var v=getJaVoice(); if(v) u.voice=v; speechSynthesis.speak(u); return true; }catch(e){ return false; } }
+
+  var jpTarget="meaning", jpEditing=null, jsess=null;
+
+  (function(){ var tg=$("jp-quiz-target").querySelectorAll("button"); for(var k=0;k<tg.length;k++) tg[k].addEventListener("click", function(){ jpTarget=this.dataset.t; var b=$("jp-quiz-target").querySelectorAll("button"); for(var j=0;j<b.length;j++) b[j].classList.toggle("is-on", b[j]===this); updateJpQuizNote(); }); })();
+
+  /* dictionary search (Claude as engine) */
+  async function jpSearch(query){
+    var prompt="일본어 사전 검색이야. 검색어 '"+query+"'(한국어 또는 일본어)에 해당하는 일본어 표제어를 관련도 순으로 최대 5개 알려줘. 오직 JSON 배열 하나만 출력해. 마크다운·설명·앞뒤 문장 절대 금지. 형식: [{\"word\":\"표기(한자나 가나)\",\"kana\":\"히라가나 읽기\",\"romaji\":\"로마자\",\"meaning\":\"한국어 뜻\",\"on\":\"음독(가타카나, 없으면 빈 문자열)\",\"kun\":\"훈독(히라가나, 없으면 빈 문자열)\"}].";
+    var text=await apiText(prompt,1400); if(text===null) return null;
+    var arr=parseJsonArray(text); if(!arr){ lastApiErr="응답 형식 오류"; return null; }
+    return arr.map(function(w){ return {word:String(w.word||w.kana||"").trim(),kana:String(w.kana||"").trim(),romaji:String(w.romaji||"").trim(),meaning:String(w.meaning||"").trim(),on:String(w.on||"").trim(),kun:String(w.kun||"").trim()}; }).filter(function(w){ return w.word||w.kana; });
+  }
+  function naverUrl(q){ return "https://ja.dict.naver.com/#/search?query="+encodeURIComponent(q); }
+  $("jp-q").addEventListener("input", function(){ var q=this.value.trim(); $("jp-naver").href=q?naverUrl(q):"https://ja.dict.naver.com/"; });
+  $("jp-q").addEventListener("keydown", function(e){ if(e.key==="Enter") doJpSearch(); });
+  $("jp-search").addEventListener("click", doJpSearch);
+  async function doJpSearch(){
+    var q=$("jp-q").value.trim(); if(!q){ toast("검색어를 입력해주세요"); return; }
+    $("jp-naver").href=naverUrl(q);
+    var btn=$("jp-search"); btn.disabled=true; var orig=btn.textContent; btn.textContent="검색 중…"; $("jp-search-note").textContent="";
+    var rows=await jpSearch(q); btn.disabled=false; btn.textContent=orig;
+    var box=$("jp-results"); box.innerHTML="";
+    if(rows===null){ $("jp-search-note").textContent="검색이 안 됐어요 ["+(lastApiErr||"원인 불명")+"]. 파일을 오프라인으로 열었다면 검색은 claude.ai 안에서만 돼요 — 아래 '직접 넣기'를 쓰세요."; return; }
+    if(!rows.length){ $("jp-search-note").textContent="결과가 없어요. 다른 말로 검색하거나 직접 넣어보세요."; return; }
+    $("jp-search-note").textContent="원하는 단어의 '가져오기'를 눌러요. 발음은 ▶ 로 미리 들어볼 수 있어요.";
+    rows.forEach(function(w){
+      var card=document.createElement("div"); card.className="result-card";
+      var rd=[]; if(w.on) rd.push("음독 "+esc(w.on)); if(w.kun) rd.push("훈독 "+esc(w.kun));
+      card.innerHTML='<button class="play-mini" title="발음 듣기" aria-label="발음 듣기">'+SPK+'</button><div class="rc-body"><div class="rc-top"><span class="rc-w">'+esc(w.word||w.kana)+'</span><span class="rc-k">'+esc(w.kana)+'</span></div><div class="rc-mean">'+esc(w.meaning||"—")+'</div>'+(rd.length?'<div class="rc-read">'+rd.join(" · ")+'</div>':'')+'</div><button class="btn btn--ghost rc-add">가져오기</button>';
+      card.querySelector(".play-mini").addEventListener("click", function(){ speakJa(w.kana||w.word); });
+      var addBtn=card.querySelector(".rc-add");
+      addBtn.addEventListener("click", function(){ var n=addJpWords([{id:uid(),word:w.word||w.kana,kana:w.kana,romaji:w.romaji,meaning:w.meaning,on:w.on,kun:w.kun}]); save(); renderStats(); renderJpList(); updateJpQuizNote(); if(n>0){ addBtn.textContent="가져옴 ✓"; addBtn.disabled=true; toast("'"+(w.word||w.kana)+"'를 가져왔어요"); } else { toast("이미 목록에 있어요"); } });
+      box.appendChild(card);
+    });
+  }
+
+  function jpKey(w){ return (w.word||"")+"|"+(w.kana||""); }
+  function addJpWords(list){ var seen={}; state.jp.forEach(function(w){ seen[jpKey(w)]=1; }); var added=0; list.forEach(function(w){ var k=jpKey(w); if(!seen[k]){ seen[k]=1; state.jp.push(w); added++; } }); return added; }
+
+  $("jp-add").addEventListener("click", function(){
+    var w=$("jp-word").value.trim(), k=$("jp-kana").value.trim(), kun=$("jp-kun").value.trim(), m=$("jp-mean").value.trim();
+    if(!w&&!k){ toast("표기나 읽기를 넣어주세요"); return; }
+    addJpWords([{id:uid(),word:w||k,kana:k,romaji:"",meaning:m,on:"",kun:kun}]);
+    save(); renderStats(); $("jp-word").value=""; $("jp-kana").value=""; $("jp-kun").value=""; $("jp-mean").value=""; renderJpList(); updateJpQuizNote();
+    toast("단어를 더했어요");
+  });
+  $("jp-mean").addEventListener("keydown", function(e){ if(e.key==="Enter") $("jp-add").click(); });
+  $("jp-starter").addEventListener("click", function(){ var list=JP_STARTER.map(function(a){ return {id:uid(),word:a[0],kana:a[1],romaji:a[2],meaning:a[3],on:"",kun:""}; }); var added=addJpWords(list); save(); renderStats(); renderJpList(); updateJpQuizNote(); toast(added>0?(added+"개 기본 단어를 넣었어요"):"이미 다 들어있어요"); });
+
+  function renderJp(){ $("jp-count-tag").textContent=state.jp.length?(state.jp.length+"개"):""; renderJpList(); updateJpQuizNote(); updateJpAudioNote(); }
+  function updateJpAudioNote(){ var el=$("jp-audio-note"); if(!el) return; if(!audioSupported()){ el.hidden=false; el.textContent="이 브라우저는 음성 재생을 지원하지 않아 듣기 퀴즈를 쓸 수 없어요."; return; } if(!getJaVoice()){ el.hidden=false; el.textContent="기기에 일본어 음성이 없어 발음이 부정확할 수 있어요."; return; } el.hidden=true; }
+  function jpPool(){ if(jpTarget==="meaning") return state.jp.filter(function(w){ return w.meaning&&w.meaning.trim(); }); if(jpTarget==="word") return state.jp.filter(function(w){ return w.word&&w.word.trim(); }); if(jpTarget==="kun") return state.jp.filter(function(w){ return w.kun&&w.kun.trim()&&w.word&&w.word.trim(); }); return state.jp.slice(); }
+  function updateJpQuizNote(){ var pool=jpPool(), note=$("jp-quiz-note"), btn=$("jp-quiz-start"); if(!note||!btn) return; if(!audioSupported()){ note.textContent="음성 재생이 안 돼요."; btn.disabled=true; return; } if(!pool.length){ note.textContent=jpTarget==="kun"?"훈독이 있는 단어가 없어요. 사전에서 가져오면 훈독이 같이 들어와요.":"먼저 단어를 넣으세요."; btn.disabled=true; return; } if(jpTarget!=="flash"&&pool.length<2){ note.textContent="2개 이상부터 가능해요."; btn.disabled=true; return; } btn.disabled=false; note.textContent=pool.length+"개 중에서 냅니다."; }
+
+  function renderJpList(){ var box=$("jp-list"); box.innerHTML=""; if(!state.jp.length){ box.innerHTML='<div class="empty"><div class="mark">あ</div><p>아직 일본어 단어가 없어요. 위에서 검색해 가져오거나 넣어보세요.</p></div>'; return; } state.jp.forEach(function(w){ box.appendChild(jpRow(w)); }); }
+  function jpRow(w){
+    var row=document.createElement("div"); row.className="item jp-item";
+    if(jpEditing===w.id){
+      row.innerHTML='<div class="edit-fields"><input type="text" class="ej-w" value="'+esc(w.word)+'" placeholder="표기" style="max-width:100px;"><input type="text" class="ej-k" value="'+esc(w.kana)+'" placeholder="읽기" style="max-width:100px;"><input type="text" class="ej-kun" value="'+esc(w.kun)+'" placeholder="훈독" style="max-width:100px;"><input type="text" class="ej-m" value="'+esc(w.meaning)+'" placeholder="뜻"></div><div class="acts"><button class="icon-btn ej-save" style="color:var(--jade-deep);">저장</button><button class="icon-btn ej-cancel">취소</button></div>';
+      row.querySelector(".ej-save").addEventListener("click", function(){ w.word=row.querySelector(".ej-w").value.trim()||w.word; w.kana=row.querySelector(".ej-k").value.trim(); w.kun=row.querySelector(".ej-kun").value.trim(); w.meaning=row.querySelector(".ej-m").value.trim(); jpEditing=null; save(); renderStats(); renderJp(); toast("고쳤어요"); });
+      row.querySelector(".ej-cancel").addEventListener("click", function(){ jpEditing=null; renderJp(); });
+    } else {
+      var rdg=[]; if(w.on) rdg.push("음독 "+esc(w.on)); if(w.kun) rdg.push("훈독 "+esc(w.kun));
+      row.innerHTML='<button class="play-mini" title="발음 듣기" aria-label="발음 듣기">'+SPK+'</button><div class="w"><span class="ww">'+esc(w.word||w.kana)+'</span><span class="kk">'+esc(w.kana)+'</span><div class="mm">'+esc(w.meaning||"—")+'</div>'+(rdg.length?'<div class="rdg">'+rdg.join(" · ")+'</div>':'')+'</div><div class="acts"><button class="icon-btn act-edit">수정</button><button class="icon-btn act-del">삭제</button></div>';
+      row.querySelector(".play-mini").addEventListener("click", function(){ speakJa(w.kana||w.word); });
+      row.querySelector(".act-edit").addEventListener("click", function(){ jpEditing=w.id; renderJp(); });
+      row.querySelector(".act-del").addEventListener("click", function(){ var b=this; if(b.dataset.armed){ state.jp=state.jp.filter(function(x){ return x.id!==w.id; }); save(); renderStats(); renderJp(); toast("지웠어요"); } else { b.dataset.armed="1"; b.textContent="정말?"; b.style.color="var(--seal)"; setTimeout(function(){ if(b){ b.dataset.armed=""; b.textContent="삭제"; b.style.color=""; } },2500); } });
+    }
+    return row;
+  }
+
+  /* listening quiz */
+  $("jp-quiz-start").addEventListener("click", startJp);
+  function startJp(){ var pool=jpPool(); if(!pool.length||!audioSupported()) return; if(jpTarget!=="flash"&&pool.length<2) return; jsess={pool:pool,queue:shuffle(pool),idx:0,target:jpTarget,answered:false,chosen:null,revealed:false,spoke:false,ok:0,missed:[],__opts:null}; $("jp-quiz-setup").hidden=true; $("jp-quiz-session").hidden=false; renderJpSession(); }
+  function endJpSession(){ if(window.speechSynthesis){ try{ speechSynthesis.cancel(); }catch(e){} } jsess=null; var s=$("jp-quiz-session"), su=$("jp-quiz-setup"); if(s) s.hidden=true; if(su) su.hidden=false; }
+  function jpSpeakText(card){ return jsess.target==="kun" ? (card.kun||card.kana||card.word) : (card.kana||card.word); }
+  function makeJpOptions(card){ var key=(jsess.target==="meaning")?"meaning":"word"; var correct=card[key]; var seen={}; seen[correct]=1; var others=[]; var sp=shuffle(jsess.pool); for(var i=0;i<sp.length;i++){ if(sp[i]===card) continue; var v=sp[i][key]; if(!v||seen[v]) continue; seen[v]=1; others.push(v); if(others.length>=3) break; } return {opts:shuffle([correct].concat(others)),correct:correct}; }
+  function revealHTML(card){ var rd=[]; if(card.on) rd.push("음독 <b>"+esc(card.on)+"</b>"); if(card.kun) rd.push("훈독 <b>"+esc(card.kun)+"</b>"); return '<div class="jp-reveal"><div class="w">'+esc(card.word||card.kana)+'</div>'+(card.kana?'<div class="k">'+esc(card.kana)+'</div>':'')+(rd.length?'<div class="rr">'+rd.join(" · ")+'</div>':'')+'<div class="m">'+esc(card.meaning||"—")+'</div></div>'; }
+  function renderJpSession(){
+    if(!jsess) return; if(jsess.idx>=jsess.queue.length){ renderJpEnd(); return; }
+    var card=jsess.queue[jsess.idx], total=jsess.queue.length, cur=jsess.idx+1, pct=Math.round((jsess.idx/total)*100); var el=$("jp-quiz-session");
+    var hint=jsess.target==="kun"?"훈독 듣기 · 어떤 한자일까요":"듣기 · 다시 들으려면 버튼을 눌러요";
+    var html='<div class="progress"><span class="count">'+cur+" / "+total+'</span><div class="bar"><i style="width:'+pct+'%"></i></div></div><div class="jp-session"><div class="play-wrap"><button class="play-btn" id="jp-play" aria-label="다시 듣기">'+SPK+'</button></div><div class="play-hint">'+hint+'</div>';
+    var o=null;
+    if(jsess.target==="flash"){
+      if(!jsess.revealed) html+='<div class="controls" style="margin-top:18px;"><button class="btn btn--seal" data-jact="show" style="padding:11px 30px;">확인</button></div>';
+      else html+=revealHTML(card)+'<div class="controls" style="margin-top:14px;"><button class="btn btn--ghost" data-jact="again">다시</button><button class="btn btn--jade" data-jact="knew">알아요</button></div>';
+    } else {
+      o=jsess.__opts||(jsess.__opts=makeJpOptions(card)); var opts="";
+      for(var i=0;i<o.opts.length;i++){ var v=o.opts[i], cls="opt"; if(jsess.answered){ if(v===o.correct) cls+=" correct"; else if(v===jsess.chosen) cls+=" wrong"; } opts+='<button class="'+cls+'" data-jopt="'+esc(v)+'"'+(jsess.answered?" disabled":"")+'>'+esc(v)+"</button>"; }
+      html+='<div class="options" style="margin-top:18px;">'+opts+'</div>'; if(jsess.answered) html+=revealHTML(card)+'<div class="controls" style="margin-top:12px;"><button class="btn btn--seal" data-jact="next" style="padding:11px 30px;">다음</button></div>';
+    }
+    html+='<div style="margin-top:16px;"><button class="btn btn--quiet" data-jact="quit">그만두기</button></div></div>';
+    el.innerHTML=html;
+    $("jp-play").addEventListener("click", function(){ this.classList.remove("pulse"); void this.offsetWidth; this.classList.add("pulse"); speakJa(jpSpeakText(card)); });
+    if(jsess.target!=="flash"&&!jsess.answered&&o){ var ob=el.querySelectorAll("[data-jopt]"); for(var m=0;m<ob.length;m++) ob[m].addEventListener("click", (function(opt){ return function(){ jsess.answered=true; jsess.chosen=opt.getAttribute("data-jopt"); if(jsess.chosen===o.correct) jsess.ok++; else jsess.missed.push(card); renderJpSession(); }; })(ob[m])); }
+    bindJpActs(el, card);
+    if(!jsess.spoke){ jsess.spoke=true; var pb=$("jp-play"); if(pb) pb.classList.add("pulse"); speakJa(jpSpeakText(card)); }
+  }
+  function bindJpActs(el, card){ var b=el.querySelectorAll("[data-jact]"); for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){ var a=this.getAttribute("data-jact"); if(a==="show"){ jsess.revealed=true; renderJpSession(); } else if(a==="knew"){ jsess.ok++; jpAdvance(); } else if(a==="again"){ if(card) jsess.missed.push(card); jpAdvance(); } else if(a==="next"){ jpAdvance(); } else if(a==="quit"){ endJpSession(); } else if(a==="retry"){ jpRetry(); } else if(a==="restart"){ jsess.queue=shuffle(jsess.pool); jsess.idx=0; jsess.ok=0; jsess.missed=[]; jsess.answered=false; jsess.chosen=null; jsess.revealed=false; jsess.spoke=false; jsess.__opts=null; renderJpSession(); } else if(a==="done"){ endJpSession(); } }); }
+  function jpAdvance(){ jsess.idx++; jsess.answered=false; jsess.chosen=null; jsess.revealed=false; jsess.spoke=false; jsess.__opts=null; renderJpSession(); }
+  function jpRetry(){ var m=jsess.missed.slice(); jsess.pool=m; jsess.queue=shuffle(m); jsess.idx=0; jsess.ok=0; jsess.missed=[]; jsess.answered=false; jsess.chosen=null; jsess.revealed=false; jsess.spoke=false; jsess.__opts=null; renderJpSession(); }
+  function renderJpEnd(){ var total=jsess.queue.length, ok=jsess.ok, no=jsess.missed.length, r=total?ok/total:0; var mark=r===1?"満":(r>=0.7?"良":(r>=0.4?"中":"再")); var line=r===1?"전부 맞혔어요.":(r>=0.7?"거의 다 들려요.":(r>=0.4?"조금만 더 들어봐요.":"다시 들어볼까요.")); $("jp-quiz-session").innerHTML='<div class="result"><div class="big">'+mark+'</div><div class="sub">'+line+'</div><div class="tally"><span class="ok">맞음<b>'+ok+'</b></span><span class="no">다시<b>'+no+'</b></span></div><div class="controls">'+(no>0?'<button class="btn btn--seal" data-jact="retry">틀린 '+no+'개 다시</button>':'')+'<button class="btn btn--ghost" data-jact="restart">처음부터</button><button class="btn btn--quiet" data-jact="done">끝내기</button></div></div>'; bindJpActs($("jp-quiz-session"), null); }
+  document.addEventListener("keydown", function(e){ if(!jsess||$("jp-quiz-session").hidden) return; if(!$("view-jp").classList.contains("is-on")) return; var tt=e.target; if(tt&&(tt.tagName==="INPUT"||tt.tagName==="TEXTAREA"||tt.isContentEditable)) return; if(e.code==="Space"){ e.preventDefault(); var c=jsess.queue[jsess.idx]; if(c) speakJa(jpSpeakText(c)); return; } if(jsess.target!=="flash"&&!jsess.answered){ var n=parseInt(e.key,10); if(n>=1&&n<=9){ var btns=$("jp-quiz-session").querySelectorAll("[data-jopt]"); if(btns[n-1]) btns[n-1].click(); } } });
+
+  /* ================= CALENDAR / DIARY ================= */
+  var calNow=new Date(), calY=calNow.getFullYear(), calM=calNow.getMonth(), calSel="";
+  function pad2(n){ return (n<10?"0":"")+n; }
+  function dkey(y,m,d){ return y+"-"+pad2(m+1)+"-"+pad2(d); }
+  function todayKey(){ var t=new Date(); return dkey(t.getFullYear(),t.getMonth(),t.getDate()); }
+  function prettyDate(key){ var p=key.split("-"); return p[0]+"년 "+(+p[1])+"월 "+(+p[2])+"일"; }
+  function renderCalendar(){
+    if(!calSel) calSel=todayKey();
+    $("cal-title").textContent=calY+"년 "+(calM+1)+"월";
+    var first=new Date(calY,calM,1).getDay(), days=new Date(calY,calM+1,0).getDate(), tk=todayKey(), html="";
+    for(var i=0;i<first;i++) html+='<div class="cal-cell empty"></div>';
+    for(var d=1;d<=days;d++){ var key=dkey(calY,calM,d); var cls="cal-cell"; if(key===tk) cls+=" today"; if(key===calSel) cls+=" sel"; var has=state.diary[key]&&String(state.diary[key]).trim(); html+='<button class="'+cls+'" data-key="'+key+'"><span class="dn">'+d+'</span>'+(has?'<span class="dot"></span>':'')+'</button>'; }
+    var grid=$("cal-grid"); grid.innerHTML=html;
+    var cells=grid.querySelectorAll("[data-key]"); for(var c=0;c<cells.length;c++) cells[c].addEventListener("click", function(){ calSel=this.getAttribute("data-key"); renderCalendar(); $("diary-text").focus(); });
+    renderDiaryEditor();
+  }
+  function renderDiaryEditor(){ $("diary-date").textContent=prettyDate(calSel)+(calSel===todayKey()?" · 오늘":""); $("diary-text").value=state.diary[calSel]||""; }
+  function saveDiary(silent){ var v=$("diary-text").value.trim(); if(v) state.diary[calSel]=v; else delete state.diary[calSel]; save(); renderCalendar(); if(!silent) toast("저장했어요"); }
+  $("diary-save").addEventListener("click", function(){ saveDiary(false); });
+  $("diary-clear").addEventListener("click", function(){ $("diary-text").value=""; delete state.diary[calSel]; save(); renderCalendar(); toast("지웠어요"); });
+  $("diary-text").addEventListener("blur", function(){ var v=this.value.trim(); if(v) state.diary[calSel]=v; else delete state.diary[calSel]; save(); var cells=$("cal-grid").querySelectorAll('[data-key="'+calSel+'"]'); /* refresh dot lightly */ renderCalendar(); });
+  $("cal-prev").addEventListener("click", function(){ calM--; if(calM<0){ calM=11; calY--; } renderCalendar(); });
+  $("cal-next").addEventListener("click", function(){ calM++; if(calM>11){ calM=0; calY++; } renderCalendar(); });
+  $("cal-today").addEventListener("click", function(){ var t=new Date(); calY=t.getFullYear(); calM=t.getMonth(); calSel=todayKey(); renderCalendar(); });
+
+  /* ---------- init ---------- */
+  (async function init(){
+    await load();
+    if(!state.lists.length) state.lists.push({id:uid(),name:"목록 1"});
+    selectedTargetList=state.lists[0].id; selectedStudyList="all"; calSel=todayKey();
+    save();
+    renderStats(); renderTargetList(); renderStudyLists(); updateStartNote();
+  })();
+
+})();
+</script>
+</body>
+</html>
